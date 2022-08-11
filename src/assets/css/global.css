@@ -25,3 +25,8 @@ body,
 .el-pagination {
     margin: 15px;
 }
+
+/* 级联选择器解决全屏，在全局样式里面加   */
+.el-scrollbar__wrap {
+    height: 200px !important;
+}

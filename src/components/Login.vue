@@ -10,10 +10,10 @@
       <el-form
         ref="loginFormRef"
         :model="loginForm"
-        :rules="rules"
+        :rules="loginFormRules"
         class="login_form"
       >
-        <!-- 用户名 prop="xxx"指定验证规则-->
+        <!-- 给 el-form-item 添加prop="xxx" 指定验证规则-->
         <el-form-item prop="username">
           <!-- 这里 prefix-icon 中填写的是iconfont前缀和图标名（iconfont网站中对应user
 .icon-user，这里组合只取后面的icon-user）的组合 -->
@@ -48,11 +48,11 @@ export default {
         password: '123456',
       },
       // 这是表单的校验对象 其中每个属性都是一个校验规则
-      rules: {
+      loginFormRules: {
         // 验证用户名是否合法
         username: [
           { required: true, message: '请输入登录名称', trigger: 'blur' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' },
+          { min: 3, max: 5, message: '长度在 3 到 10 个字符', trigger: 'blur' },
         ],
         // 验证密码是否合法
         password: [
@@ -68,7 +68,7 @@ export default {
     }
   },
   methods: {
-    // 重置操作(重置为初始值，而不是空值)
+    // 重置操作(重置为初始值，而不是空值，同时移除校验规则)
     resetLoginForm() {
       // console.log(this.$refs)  this.$refs.loginFormRef就是表单的引用，可以当表单来使用
       this.$refs.loginFormRef.resetFields() //调用Element-ui中的resetFields()进行重置
@@ -80,10 +80,10 @@ export default {
         // console.log(valid);
         if (!valid) return
         // valid为true才发起请求
-        // {data:res}解构
+        // {data:res}解构 从返回的结果上解构出data 并重命名为res
         const { data: res } = await this.$http.post('login', this.loginForm)
         // 返回结果是promise，可以在上一语句前面加await，但await只能被用在async修饰的方法中，所以要在valid前面加async
-        // console.log(res);
+        console.log(res)
         // 状态码是200就表明登录成功了
         if (res.meta.status != 200) return this.$message.error('登录失败')
         this.$message.success('登录成功')
@@ -91,6 +91,13 @@ export default {
         // 1.将登陆成功后的token，保存到客户端的sessionStorage中
         // 1.1 项目中除了登陆之外的其他API接口，必须在登陆之后才能访问
         // 1.2 token只应在当前网站打开期间生效，所以将token保存在sessionStorage中
+        // sessionStorage用于临时存储同一窗口或标签页的数据，
+        // 当关闭该窗口或者标签页后，该数据随之删除，
+        // 如果想浏览器窗口关闭后还保留数据，则可以使用localStorage，
+        // 该存储的数据会一直存在，除非自己手动删除。
+
+        // 存储:  window.sessionStorage.setItem(key,value)
+        // 读取:  window.sessionStorage.getItem(key),返回value值
         window.sessionStorage.setItem('token', res.data.token)
         // 2. 通过编程式导航跳转到后台主页，路由地址是/home
         this.$router.push('/home')
